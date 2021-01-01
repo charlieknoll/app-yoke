@@ -1,4 +1,4 @@
-# chrome-dev-tools-controller
+# AppYoke
 
 > **IMPORTANT:** Be sure to close all instances of brave or chrome before starting in debugger mode.
 
