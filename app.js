@@ -1,6 +1,10 @@
 require('dotenv').config()
 const express = require('express')
-const { browserController, parseAction } = require('./controller')
+const {
+  browserController,
+  parseAction,
+  parseStepFile,
+} = require('./controller')
 const asyncHandler = require('express-async-handler')
 const { Router, query } = require('express')
 
@@ -11,7 +15,10 @@ const port = process.env.PORT
 app.get(
   '*',
   asyncHandler(async function (req, res, next) {
-    action = parseAction(req.url)
+    const actionStr = req.query.params
+      ? req.path + '?params=' + req.query.params
+      : req.url
+    const action = parseAction(actionStr)
 
     if (browserController[action.path]) {
       await browserController[action.path](...action.params)
@@ -24,8 +31,31 @@ app.get(
 app.get(
   '/step-file',
   asyncHandler(async function (req, res) {
-    await browserController.goto(req.query.url)
-    res.send(`navigated to: ${req.query.url}`)
+    const action = parseAction(req.url)
+    const actions = parseStepFile(action.params[0])
+
+    let invalidActions = []
+    for (let i = 0; i < actions.length; i++) {
+      const stepAction = actions[i]
+      if (browserController[stepAction.path]) {
+        await browserController[stepAction.path](...stepAction.params)
+      } else {
+        invalidActions.push(
+          stepAction.path +
+            (stepAction.params ? '?' : '') +
+            `${stepAction.params}`,
+        )
+      }
+    }
+
+    if (invalidActions.length > 0) {
+      return res.status(404).send({
+        message:
+          'The following steps could not be found: ' + invalidSteps.join('/n'),
+      })
+    } else {
+      res.send('success')
+    }
   }),
 )
 app.get('/test', function (req, res) {

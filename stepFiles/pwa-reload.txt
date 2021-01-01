@@ -1,3 +1,0 @@
-clearSiteData-sleep-500
-goto-sleep-500?["http://localhost:8081?apikey=##API_KEY##", {"waitUntil": "load"}]
-click-sleep-500?div.q-banner[name="settings-banner"] button[tabindex="0"]

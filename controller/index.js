@@ -1,3 +1,5 @@
 const browserController = require('./browserController')
 const parseAction = require('./parseAction')
-module.exports = { browserController, parseAction }
+const parseStepFile = require('./parseStepFile')
+
+module.exports = { browserController, parseAction, parseStepFile }
