@@ -1,0 +1,4 @@
+{
+    "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
+    "editor.fontSize": 14
+}
