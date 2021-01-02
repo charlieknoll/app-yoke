@@ -1,5 +1,5 @@
-require('dotenv').config()
 const express = require('express')
+const config = require('./config')
 const {
   browserController,
   parseAction,
@@ -9,16 +9,13 @@ const asyncHandler = require('express-async-handler')
 const { Router, query } = require('express')
 
 const app = express()
-const hostname = process.env.HOST
-const port = process.env.PORT
+const hostname = config.HOST
+const port = config.PORT
 
 app.get(
   '*',
   asyncHandler(async function (req, res, next) {
-    const actionStr = req.query.params
-      ? req.path + '?params=' + req.query.params
-      : req.url
-    const action = parseAction(actionStr)
+    const action = parseAction(decodeURI(req.url))
 
     if (browserController[action.path]) {
       await browserController[action.path](...action.params)
