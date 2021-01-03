@@ -26,17 +26,17 @@ const browserController = {
     })
   },
   click: async function (selector, clickOptions, waitOptions) {
-    console.log('preclick')
-    //await page().click(selector, clickOptions)
-    // const [response] = await Promise.all([
-    //   _sleep(99),
-    //   page().waitForNavigation(waitOptions),
-    //   page().click(selector, clickOptions),
-    // ])
-    await page().evaluate((s) => {
-      document.querySelector(s).click()
-    }, selector)
-    console.log('postclick')
+    await page().evaluate(
+      (s, clickOptions) => {
+        document.querySelector(s).click()
+      },
+      selector,
+      clickOptions,
+    )
+  },
+  waitForClick: async function (selector, clickOptions) {
+    await this.waitForSelector(selector)
+    await this.click(selector, clickOptions)
   },
   type: async function (selector, text, options) {
     options = options || { delay: 100 }
