@@ -4,6 +4,7 @@ const client = () => pageProvider.client
 const page = () => pageProvider.page
 
 function _sleep(ms) {
+  console.log('sleep: ' + ms)
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
@@ -25,12 +26,17 @@ const browserController = {
     })
   },
   click: async function (selector, clickOptions, waitOptions) {
-    // var p1 = page().click(selector, clickOptions)
-    // const p2 = page().waitForNavigation(waitOptions)
-    // await _sleep(1000)
-    // const [response] = await Promise.all([p1])
-
-    await page().click(selector, clickOptions)
+    console.log('preclick')
+    //await page().click(selector, clickOptions)
+    // const [response] = await Promise.all([
+    //   _sleep(99),
+    //   page().waitForNavigation(waitOptions),
+    //   page().click(selector, clickOptions),
+    // ])
+    await page().evaluate((s) => {
+      document.querySelector(s).click()
+    }, selector)
+    console.log('postclick')
   },
   type: async function (selector, text, options) {
     options = options || { delay: 100 }
@@ -40,7 +46,12 @@ const browserController = {
   press: async function () {
     //TODO parse out modifiers
   },
-
+  evaluate: async function (js, value) {
+    const retValue = await page().evaluate(js)
+    if (value === retValue) {
+      console.log('matched')
+    }
+  },
   loadScript: async function () {},
   reload: async function () {},
   waitForSelector: async function (selector) {

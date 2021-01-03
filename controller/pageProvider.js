@@ -33,6 +33,7 @@ const pageProvider = {
     }
 
     this.client = await this.page.target().createCDPSession()
+    console.log('Page and client created.')
   },
   init: async function () {
     try {
