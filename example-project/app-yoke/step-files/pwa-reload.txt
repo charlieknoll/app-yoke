@@ -1,6 +1,8 @@
 clearSiteData
-sleep?500
 goto?params=["http://localhost:8081?apikey=@@@API_KEY@@@", {"waitUntil": "load"}]
-sleep?500
-click?div.q-banner[name="settings-banner"] button[tabindex="0"]
-sleep?500
+waitForClick?div.q-banner[name="settings-banner"] button[tabindex="0"]
+reload
+sleep?2000
+reload
+network?false
+reload

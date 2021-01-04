@@ -37,18 +37,26 @@ app.get(
       if (browserController[stepAction.path]) {
         await browserController[stepAction.path](...stepAction.params)
       } else {
-        invalidActions.push(
-          stepAction.path +
-            (stepAction.params ? '?' : '') +
-            `${stepAction.params}`,
-        )
+        try {
+          await browserController.defaultHandler(
+            stepAction.path,
+            ...stepAction.params,
+          )
+        } catch (e) {
+          invalidActions.push(
+            stepAction.path +
+              (stepAction.params ? '?' : '') +
+              `${stepAction.params}`,
+          )
+        }
       }
     }
 
     if (invalidActions.length > 0) {
       return res.status(404).send({
         message:
-          'The following steps could not be found: ' + invalidSteps.join('/n'),
+          'The following steps could not be executed, did you specify a valid page or keyboard action? Invalid steps: ' +
+          invalidActions.join('/n'),
       })
     } else {
       res.send('success')

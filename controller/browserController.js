@@ -39,21 +39,65 @@ const browserController = {
     await this.click(selector, clickOptions)
   },
   type: async function (selector, text, options) {
-    options = options || { delay: 100 }
+    options = options || { delay: 50 }
     await page().type(selector, text, options)
   },
+  defaultHandler: async function () {
+    const args = Array.from(arguments)
 
-  press: async function () {
-    //TODO parse out modifiers
+    if (args.length == 0) throw new Error('Page function not specified')
+    if (!page()[args[0]] && !page().keyboard[args[0]])
+      throw new Error('Invalid page or keyboard function: ' + args[0])
+    const action = args.splice(0, 1)[0]
+    if (page()[action]) {
+      await page()[action](...args)
+      return
+    }
+    await page().keyboard[action](...args)
   },
-  evaluate: async function (js, value) {
+  press: async function (selector, keys, options) {
+    await page().focus(selector)
+    const modifierKeys = ['Control', 'Shift', 'Alt']
+    keys = keys.split(',')
+    for (const k of keys) {
+      if (modifierKeys.indexOf(k) > -1) {
+        await page().keyboard.down(k)
+      } else {
+        await page().keyboard.press(k, options)
+      }
+    }
+    for (const k of keys) {
+      if (modifierKeys.indexOf(k) > -1) {
+        await page().keyboard.up(k)
+      }
+    }
+  },
+  evaluate: async function (js) {
+    await page().evaluate(() => {
+      window.alert('hello test')
+    })
+  },
+  evaluateValue: async function (js, value) {
     const retValue = await page().evaluate(js)
     if (value === retValue) {
       console.log('matched')
     }
   },
   loadScript: async function () {},
-  reload: async function () {},
+  clearStorage: async function (types) {
+    await client().send('Storage.clearDataForOrigin', {
+      origin: process.env.DEBUG_ORIGIN,
+      storageTypes: types,
+    })
+  },
+  reload: async function (clearCache = true) {
+    if (clearCache) {
+      await this.clearStorage('cache_storage')
+    }
+    await page().evaluate(() => {
+      window.location.reload()
+    })
+  },
   waitForSelector: async function (selector) {
     const sleepMs = 250
     let cycles = 0
