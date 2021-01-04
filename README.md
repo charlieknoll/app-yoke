@@ -44,7 +44,11 @@ AppYoke provides a number of custom actions on top of the default <a href="https
 
 Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env file
 
-```clearSiteStorage```: Uses the Storage.clearDataForOrigin through the CDPSession
+```clearSiteStorage```: Uses the Storage.clearDataForOrigin through the CDPSession passing these storage types: ```appcache,cache_storage,cookies,indexeddb,local_storage,service_workers,websql```
+
+```clearStorage(types)```: Uses the Storage.clearDataForOrigin through the CDPSession passing the types argument for storage types
+
+```reload(forceReload)```: By default clears cache using ```clearStorage('cache_stoage')``` then uses page evaluate to run window.location.reload()
 
 ```waitForSelector(selector)```: Waits for the selector to resolve to an element on the page
 
@@ -52,7 +56,6 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```evaluateValue(js,value)```: Pass a javascript string which evaluates to a value and 
 
-```reload(forceReload)```: Uses page evaluate to run window.location.reload(forceReload)
 
 ### Enhanced Actions
 
@@ -70,11 +73,15 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ## AppYoke Project Folder Format
 
-
+See the example-project/app-yoke for an example
 
 ## Step File Format
 
-#TODO
+Actions can be called in 2 ways:
+- action?singleParam (e.g. sleep?500)
+- action?params=JSON array (e.g. sleep?params="["sleep": "500"]")
+
+Comment lines by place
 
 ## Examples
 
