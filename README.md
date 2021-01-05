@@ -54,7 +54,7 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```sleep(ms)```: Pauses the stepfile for the specified number of milliseconds
 
-```evaluateValue(js,value)```: Pass a javascript string which evaluates to a value and 
+```evaluateValue(js,value)```: Pass a javascript string which evaluates to a value and checks to see if it matches value
 
 ```network(enable)```: Enables/disables netork
 
@@ -99,6 +99,14 @@ reload
 network?false
 reload
 ```
+
+## Automation
+
+There are number of ways to further speed up your development cycles through automation:
+
+- enter a curl command in the terminal to call the stepfile curl localhost:3000/stepfile?mystepfile.txt
+- Use postman to set up a bunch of requests to stepfiles or directly to commands
+- Use autohotkey (Windows only) to have system wide hotkeys linked to stepfile api calls (see the example in example-project/app-yoke/autohotkey)
 
 ## Tips
 
