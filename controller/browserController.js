@@ -1,7 +1,7 @@
 const config = require('../config')
 const pageProvider = require('./pageProvider')
-const client = () => pageProvider.client
-const page = () => pageProvider.page
+const client = async () => await pageProvider.getClient()
+const page = async () => await pageProvider.getPage()
 
 function _sleep(ms) {
   console.log('sleep: ' + ms)
@@ -81,7 +81,7 @@ const browserController = {
     return true
   },
   evaluateValue: async function (js, value) {
-    const retValue = await page().evaluate(js)
+    const retValue = await (await page()).evaluate(js)
     return (value === retValue && value !== undefined) || retValue == true
   },
   waitForEvaluateValue: async function (js, value) {
@@ -113,10 +113,10 @@ const browserController = {
     })
     return true
   },
-  waitForSelector: async function (selector) {
+  waitForSelector: async function (selector, timeout) {
     const sleepMs = 250
     let cycles = 0
-    const maxCycles = config.WAIT_FOR_TIMEOUT / sleepMs
+    const maxCycles = timeout || config.WAIT_FOR_TIMEOUT / sleepMs
     let el = await page().$(selector)
     while (!el && cycles < maxCycles) {
       cycles++

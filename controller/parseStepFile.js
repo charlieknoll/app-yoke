@@ -21,6 +21,13 @@ module.exports = function (stepFile) {
       steps.splice(i, 1)
     }
   }
+  for (let i = 0; i < steps.length; i++) {
+    const element = steps[i]
+    if (element.toLowerCase().startsWith('exit')) {
+      steps.splice(i, steps.length - i)
+      break
+    }
+  }
   //parse Actions and split helper actions
   const actions = []
   for (let i = 0; i < steps.length; i++) {

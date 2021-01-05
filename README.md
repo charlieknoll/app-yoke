@@ -81,11 +81,15 @@ See the example-project/app-yoke for an example
 
 ## Step File Format
 
+Each line in a step file is considered an Action
+
 Actions can be called in 2 ways:
 - action?singleParam (e.g. sleep?500)
 - action?params=JSON array (e.g. sleep?params="["sleep": "500"]")
 
-Comment lines by place
+Comment actions by placing a semi-colon as the first character in the step line.
+
+Lines that start with "exit" will terminate the step file.
 
 ## Examples
 
@@ -107,7 +111,7 @@ reload
 There are number of ways to further speed up your development cycles through automation:
 
 - enter a curl command in the terminal to call the stepfile curl localhost:3000/stepfile?mystepfile.txt
-- Use postman to set up a bunch of requests to stepfiles or directly to commands
+- Use postman to set up a bunch of requests to stepfiles or directly to actions
 - Use autohotkey (Windows only) to have system wide hotkeys linked to stepfile api calls (see the example in example-project/app-yoke/autohotkey)
 
 ## Tips
@@ -123,3 +127,7 @@ waitForEvaluate?window._VuePageMounted
 ...
 
 ```
+
+Setting ```network?true``` at the top of the script file will ensure the network is always on when script is started.
+
+Add sleep after navigation clicks to ensure the app has completely loaded.
