@@ -1,4 +1,6 @@
-# chrome-dev-tools-controller
+# AppYoke
+
+App for automating the chrome dev tools experience, great for developing SPA, PWA and electron apps. Uses puppeteer under the covers.
 
 ## Requirements
 
@@ -62,6 +64,8 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```notifications(ask/block/allow)```: Site notifications settings
 
+```bash```: Exec a command in a bash prompt, good for running npm scripts or deployment commands
+
 ### Enhanced Actions
 
 ```click```: Uses page.evaluate => document.querySelector(selector).click() instead of page.click()
@@ -112,14 +116,25 @@ goto?params=["http://localhost:8081?apikey=@@@API_KEY@@@", {"waitUntil": "load"}
 Are you tired of clearing site data, clearing notification settings, reloading page, reloading again to populate data, logging in, disabling/enabling network and repeating over and over again as you test your application?  If so, set up a steps file and hook it up with a hot key to get instant automation of the steps.
 
 ```
+;This script fully reloads a pwa, auth using api key, 
+;hydrates cache and resets site settings
+network?true
+reload
+console?true
 clearSiteData
 goto?params=["http://localhost:8081?apikey=@@@API_KEY@@@", {"waitUntil": "load"}]
 waitForClick?div.q-banner[name="settings-banner"] button[tabindex="0"]
-reload
+waitForSelector?#albumTitle
+sleep?400
+press?params=["#albumTitle","Control,a"]
+type?params=["#albumTitle","PhotoAhC"]
+clickText?button > Reload Album
 sleep?2000
-reload
+goto?http://localhost:8081
+sleep?1000
 network?false
 reload
+
 ```
 
 ## Automation
