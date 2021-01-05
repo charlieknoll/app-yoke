@@ -16,9 +16,8 @@ npm install
 cp .env.example .env
 ```
 
-- Configure the DEBUG_ORIGIN in the .env file (e.g. http://localhost:8081)
-- Configure the PROJECT_PATH in the .env file (/dev/app-yoke/example-project) if running the example project
-
+- Configure the DEBUG_ORIGIN in the .env file (e.g. http://localhost:8080)
+- Configure the target PROJECT_PATH in the .env file (e.g. /dev/todo-app) 
 ```
 node app.js
 ```
@@ -28,12 +27,15 @@ node app.js
 - Copy the app-yoke/example-project/app-yoke folder to your target project
 - Start up your local web server or debug in vs code (e.g. your app running on localhost:8080)
 - Start brave, edge or chrome with remote-debugging flag set (see chrome.bat)
-- Navigate to your debugging url (e.g. localhost:8080)
+- Navigate to your debugging url (e.g. localhost:8080) in your debugging browser
 
 > **IMPORTANT:** Be sure to close all instances of your testing browser before starting in debugger mode.
 
+Assuming you started the AppYoke server at port 3000, you can now invoke actions and step files:
+
 ```
-curl localhost:3000/step-file?pwa-reload.txt 
+curl localhost:3000/clearSiteData
+curl localhost:3000/step-file?hello.txt 
 ```
 
 ## Step File Commands
@@ -75,6 +77,14 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 ```waitForPress(selector,text)```: A combination of the additional action waitForSelector and the enhanced action press. Helpful when navigating between pages.
 
 ```waitForEvaluateValue(js,value)```: Waits for the passed javascript string to evaluate to value 
+### Console Related Actions
+
+```console?enabled(true,false)```: Enables/disables AppYoke messages to the target browser
+
+```info?message```: Logs an info message
+
+```error?message```: Logs an error message
+
 ## AppYoke Project Folder Format
 
 See the example-project/app-yoke for an example
@@ -90,6 +100,12 @@ Actions can be called in 2 ways:
 Comment actions by placing a semi-colon as the first character in the step line.
 
 Lines that start with "exit" will terminate the step file.
+
+Values wrapped with @@@ will be replaced with env variable. The text '@@@API_KEY@@@' below will be replaced by the API_KEY variable in the .env residing in the target project app-yoke/.env file
+
+```
+goto?params=["http://localhost:8081?apikey=@@@API_KEY@@@", {"waitUntil": "load"}]
+```
 
 ## Examples
 
@@ -131,3 +147,12 @@ waitForEvaluate?window._VuePageMounted
 Setting ```network?true``` at the top of the script file will ensure the network is always on when script is started.
 
 Add sleep after navigation clicks to ensure the app has completely loaded.
+
+If you want to block execution of a step file, add an action that show an alert in the browser:
+
+```
+...
+;step file will pause until the alert is clicked in the browser:
+evaluate?alert('test')
+...
+```

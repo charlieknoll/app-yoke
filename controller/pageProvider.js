@@ -46,14 +46,7 @@ const pageProvider = {
       process.exit()
     }
   },
-  getClient: async function () {
-    return this.client
-  },
-  getPage: async function () {
-    return this.page
-  },
 }
-pageProvider.init()
 
 //wait for client and page
 

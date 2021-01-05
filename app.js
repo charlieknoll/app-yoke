@@ -15,11 +15,19 @@ const port = config.PORT
 app.get(
   '*',
   asyncHandler(async function (req, res, next) {
+    await browserController.init()
     const action = parseAction(decodeURI(req.url))
-
+    if (browserController.logToConsole) {
+      await browserController.info(action.path, action.params)
+    }
     if (browserController[action.path]) {
-      await browserController[action.path](...action.params)
-      res.send('success')
+      try {
+        const result = await browserController[action.path](...action.params)
+        res.send('success')
+      } catch (e) {
+        await browserController.error(e.message, { stack: e.stack })
+        res.send('failure')
+      }
     } else {
       return next()
     }
@@ -28,13 +36,18 @@ app.get(
 app.get(
   '/step-file',
   asyncHandler(async function (req, res) {
+    await browserController.init()
     const action = parseAction(req.url)
     const actions = parseStepFile(action.params[0])
-
+    await browserController.info(action.path, action.params)
     let invalidActions = []
     let result = false
     for (let i = 0; i < actions.length; i++) {
       const stepAction = actions[i]
+      if (browserController.logToConsole) {
+        await browserController.info(stepAction.path, stepAction.params)
+      }
+
       if (browserController[stepAction.path]) {
         result = await browserController[stepAction.path](...stepAction.params)
         if (!result) {
