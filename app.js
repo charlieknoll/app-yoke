@@ -32,13 +32,14 @@ app.get(
     const actions = parseStepFile(action.params[0])
 
     let invalidActions = []
+    let result = false
     for (let i = 0; i < actions.length; i++) {
       const stepAction = actions[i]
       if (browserController[stepAction.path]) {
-        await browserController[stepAction.path](...stepAction.params)
+        result = await browserController[stepAction.path](...stepAction.params)
       } else {
         try {
-          await browserController.defaultHandler(
+          result = await browserController.defaultHandler(
             stepAction.path,
             ...stepAction.params,
           )
@@ -59,7 +60,11 @@ app.get(
           invalidActions.join('/n'),
       })
     } else {
-      res.send('success')
+      if (result) {
+        res.send('success')
+      } else {
+        res.send('failed')
+      }
     }
   }),
 )

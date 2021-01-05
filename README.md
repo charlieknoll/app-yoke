@@ -56,6 +56,9 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```evaluateValue(js,value)```: Pass a javascript string which evaluates to a value and 
 
+```network(enable)```: Enables/disables netork
+
+```notifications(ask/block/allow)```: Site notifications settings
 
 ### Enhanced Actions
 
@@ -69,8 +72,7 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```waitForPress(selector,text)```: A combination of the additional action waitForSelector and the enhanced action press. Helpful when navigating between pages.
 
-```waitForEvaluateValue```: 
-
+```waitForEvaluateValue(js,value)```: Waits for the passed javascript string to evaluate to value 
 ## AppYoke Project Folder Format
 
 See the example-project/app-yoke for an example

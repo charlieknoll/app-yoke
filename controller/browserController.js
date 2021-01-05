@@ -35,8 +35,12 @@ const browserController = {
     )
   },
   waitForClick: async function (selector, clickOptions) {
-    await this.waitForSelector(selector)
-    await this.click(selector, clickOptions)
+    const foundEl = await this.waitForSelector(selector)
+    if (foundEl) {
+      await this.click(selector, clickOptions)
+      return true
+    }
+    return false
   },
   type: async function (selector, text, options) {
     options = options || { delay: 50 }
@@ -72,16 +76,26 @@ const browserController = {
       }
     }
   },
-  evaluate: async function (js) {
-    await page().evaluate(() => {
-      window.alert('hello test')
-    })
-  },
+  // evaluate: async function (js) {
+  //   await page().evaluate(() => {
+  //     window.alert('hello test')
+  //   })
+  // },
   evaluateValue: async function (js, value) {
     const retValue = await page().evaluate(js)
-    if (value === retValue) {
-      console.log('matched')
+    return (value === retValue && value !== undefined) || retValue == true
+  },
+  waitForEvaluateValue: async function (js, value) {
+    const sleepMs = 250
+    let cycles = 0
+    const maxCycles = config.WAIT_FOR_TIMEOUT / sleepMs
+    let matched = await this.evaluateValue(js, value)
+    while (!matched && cycles < maxCycles) {
+      cycles++
+      await _sleep(sleepMs)
+      matched = await this.evaluateValue(js, value)
     }
+    return matched
   },
   loadScript: async function () {},
   clearStorage: async function (types) {
@@ -101,17 +115,26 @@ const browserController = {
   waitForSelector: async function (selector) {
     const sleepMs = 250
     let cycles = 0
-    const maxCycles = config.WAIT_FOR_SELECTOR / sleepMs
+    const maxCycles = config.WAIT_FOR_TIMEOUT / sleepMs
     let el = await page().$(selector)
     while (!el && cycles < maxCycles) {
       cycles++
       await _sleep(sleepMs)
       el = await page().$(selector)
     }
-    return true
+    return el !== null
   },
-  enableNetwork: async function () {},
-  disableNetwork: async function () {},
+  network: async function (enable) {
+    enable = enable == 'true' ? true : false
+    await client().send('Network.emulateNetworkConditions', {
+      offline: !enable,
+      downloadThroughput: -1,
+      latency: 0,
+      uploadThroughput: -1,
+      connectionType: enable ? 'ethernet' : 'none',
+    })
+  },
+
   goto: async function (url, options) {
     try {
       await page().goto(url, options)
