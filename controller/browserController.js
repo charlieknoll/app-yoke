@@ -9,14 +9,9 @@ function _sleep(ms) {
 }
 
 const browserController = {
-  // evaluate: async function (js) {
-  //   await page.evaluate()
-  // },
   sleep: async function (ms) {
-    // function _sleep(ms) {
-    //   return new Promise((resolve) => setTimeout(resolve, ms))
-    // }
     await _sleep(ms)
+    return true
   },
   clearSiteData: async function () {
     await client().send('Storage.clearDataForOrigin', {
@@ -24,16 +19,22 @@ const browserController = {
       storageTypes:
         'appcache,cache_storage,cookies,indexeddb,local_storage,service_workers,websql',
     })
+    return true
   },
-  click: async function (selector, clickOptions, waitOptions) {
-    await page().evaluate(
+  click: async function (selector, clickOptions) {
+    return await page().evaluate(
       (s, clickOptions) => {
-        document.querySelector(s).click()
+        let el = document.querySelector(s)
+        if (el == null) return false
+
+        el.click()
+        return true
       },
       selector,
       clickOptions,
     )
   },
+
   waitForClick: async function (selector, clickOptions) {
     const foundEl = await this.waitForSelector(selector)
     if (foundEl) {
@@ -45,6 +46,7 @@ const browserController = {
   type: async function (selector, text, options) {
     options = options || { delay: 50 }
     await page().type(selector, text, options)
+    return true
   },
   defaultHandler: async function () {
     const args = Array.from(arguments)
@@ -55,9 +57,10 @@ const browserController = {
     const action = args.splice(0, 1)[0]
     if (page()[action]) {
       await page()[action](...args)
-      return
+      return true
     }
     await page().keyboard[action](...args)
+    return true
   },
   press: async function (selector, keys, options) {
     await page().focus(selector)
@@ -75,12 +78,8 @@ const browserController = {
         await page().keyboard.up(k)
       }
     }
+    return true
   },
-  // evaluate: async function (js) {
-  //   await page().evaluate(() => {
-  //     window.alert('hello test')
-  //   })
-  // },
   evaluateValue: async function (js, value) {
     const retValue = await page().evaluate(js)
     return (value === retValue && value !== undefined) || retValue == true
@@ -103,6 +102,7 @@ const browserController = {
       origin: process.env.DEBUG_ORIGIN,
       storageTypes: types,
     })
+    return true
   },
   reload: async function (clearCache = true) {
     if (clearCache) {
@@ -111,6 +111,7 @@ const browserController = {
     await page().evaluate(() => {
       window.location.reload()
     })
+    return true
   },
   waitForSelector: async function (selector) {
     const sleepMs = 250
@@ -122,7 +123,7 @@ const browserController = {
       await _sleep(sleepMs)
       el = await page().$(selector)
     }
-    return el !== null
+    return el != null
   },
   network: async function (enable) {
     enable = enable == 'true' ? true : false
@@ -133,25 +134,48 @@ const browserController = {
       uploadThroughput: -1,
       connectionType: enable ? 'ethernet' : 'none',
     })
+    return true
+  },
+  clickText: async function (selector) {
+    const parts = selector.split('>')
+    if (parts.length !== 2) return null
+    const s = parts[0].trim()
+    const t = parts[1].trim()
+
+    return await page().evaluate(
+      (s, t) => {
+        const nodes = document.querySelectorAll(s)
+        for (let i = 0; i < nodes.length; i++) {
+          const n = nodes[i]
+          if (n.innerText.toLowerCase() == t.toLowerCase()) {
+            n.click()
+            return true
+          }
+        }
+        return false
+      },
+      s,
+      t,
+    )
   },
 
-  goto: async function (url, options) {
-    try {
-      await page().goto(url, options)
-      return true
-    } catch (e) {
-      console.log('goto error: ', e)
-      return false
-    }
-  },
-  gotoWaitFor: async function (
-    url,
-    waitUntil = 'load',
-    eval = 'document.ready',
-  ) {
-    await this.goto(url, waitUntil)
-    await this.waitFor(eval)
-  },
+  // goto: async function (url, options) {
+  //   try {
+  //     await page().goto(url, options)
+  //     return true
+  //   } catch (e) {
+  //     console.log('goto error: ', e)
+  //     return false
+  //   }
+  // },
+  // gotoWaitFor: async function (
+  //   url,
+  //   waitUntil = 'load',
+  //   eval = 'document.ready',
+  // ) {
+  //   await this.goto(url, waitUntil)
+  //   await this.waitForEvaluateValue(eval)
+  // },
 }
 
 module.exports = browserController

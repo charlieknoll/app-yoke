@@ -37,12 +37,18 @@ app.get(
       const stepAction = actions[i]
       if (browserController[stepAction.path]) {
         result = await browserController[stepAction.path](...stepAction.params)
+        if (!result) {
+          console.log('failed: ' + stepAction.path)
+        }
       } else {
         try {
           result = await browserController.defaultHandler(
             stepAction.path,
             ...stepAction.params,
           )
+          if (!result) {
+            console.log('failed: ' + stepAction.path)
+          }
         } catch (e) {
           invalidActions.push(
             stepAction.path +
@@ -61,8 +67,10 @@ app.get(
       })
     } else {
       if (result) {
+        console.log('finished success')
         res.send('success')
       } else {
+        console.log('finished failed')
         res.send('failed')
       }
     }

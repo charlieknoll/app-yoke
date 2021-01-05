@@ -66,6 +66,8 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```press(selector,keys,options)```:  Pass a comma delimited list and keyboard.down/up will be sent for the modifier keys and keyboard.press will be used for non modifier keys. Useful for highlighting an existing value before typing text into and input. E.g. "Control,a" would highlight existing text sending keyboard.down("Control"), keyboard.press("a") and keyboard.up("Control"). Subsequent "type" call would overwrite the text in the field. Also CHAR(charCode) will be converted to the char code. E.g. CHAR(13) will send the enter key.
 
+```type(selector,text,options)```: Same as page.type except defaults typing speed to 50ms instead of 100ms
+
 ### Combination Actions
 
 ```waitForClick(selector,clickOptions)```: A combination of the additional action waitForSelector and page.click. Helpful when navigating between pages
