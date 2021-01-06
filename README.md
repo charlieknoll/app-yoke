@@ -62,8 +62,6 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```network(enable)```: Enables/disables netork
 
-```notifications(ask/block/allow)```: Site notifications settings
-
 ```bash```: Exec a command in a bash prompt, good for running npm scripts or deployment commands
 
 ### Enhanced Actions
@@ -113,7 +111,7 @@ goto?params=["http://localhost:8081?apikey=@@@API_KEY@@@", {"waitUntil": "load"}
 
 ## Examples
 
-Are you tired of clearing site data, clearing notification settings, reloading page, reloading again to populate data, logging in, disabling/enabling network and repeating over and over again as you test your application?  If so, set up a steps file and hook it up with a hot key to get instant automation of the steps.
+Are you tired of clearing site data, reloading page, reloading again to populate data, logging in, disabling/enabling network and repeating over and over again as you test your application?  If so, set up a steps file and hook it up with a hot key to get instant automation of the steps.
 
 ```
 ;This script fully reloads a pwa, auth using api key, 
