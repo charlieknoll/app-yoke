@@ -201,6 +201,23 @@ const browserController = {
     )
   },
   overridePermissions: async function (permissions) {
+    this.error('permissions not supported')
+    return false
+    const startupArgs = {
+      args: [
+        '--no-sandbox',
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-setuid-sandbox',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        "--proxy-server='direct://'",
+        '--proxy-bypass-list=*',
+        '--disable-notifications',
+      ],
+    }
+    //--remote-debugging-port=9223 --no-sandbox --disable-dev-shm-usage --disable-setuid-sandbox --single-process --disable-notifications
     if (!Array.isArray(permissions)) {
       permissions = permissions.split(',')
     }
@@ -210,20 +227,24 @@ const browserController = {
       permissions,
     )
     //await this.reload()
-
+    // const context = await this.page.browserContext()
+    // await context.overridePermissions(process.env.DEBUG_ORIGIN, permissions)
     return true
   },
 
   clearPermissionOverrides: async function () {
+    this.error('permissions not supported')
+    return false
     // const result = await this.client.send('Browser.SetPermission ', {
     //   origin: process.env.DEBUG_ORIGIN,
     //   permission: 'notifications',
     //   setting: 'prompt',
     // })
-    const result = await this.client.send('Browser.getVersion')
-    const result2 = await this.client.send('Browser.resetPermissions')
+    //const result = await this.client.send('Browser.getVersion')
+    //const result2 = await this.client.send('Browser.resetPermissions')
     //    const context = await this.page.browserContext()
-    //  await context.clearPermissionOverrides()
+    await this.context.clearPermissionOverrides()
+    await this.reload()
     //await this.context.clearPermissionOverrides()
     return true
   },
