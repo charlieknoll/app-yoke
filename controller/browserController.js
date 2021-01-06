@@ -92,7 +92,8 @@ const browserController = {
   defaultHandler: async function () {
     const args = Array.from(arguments)
 
-    if (args.length == 0) throw new Error('Page function not specified')
+    if (args.length == 0)
+      throw new Error('Invalid action, page function not specified')
     const page = this.page
     if (!page[args[0]] && !page.keyboard[args[0]])
       throw new Error('Invalid page or keyboard function: ' + args[0])

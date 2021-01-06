@@ -42,16 +42,26 @@ app.get(
     await browserController.info(action.path, action.params)
     let invalidActions = []
     let result = false
+    let stepFileSuccess = true
     for (let i = 0; i < actions.length; i++) {
       const stepAction = actions[i]
       if (browserController.logToConsole) {
         await browserController.info(stepAction.path, stepAction.params)
       }
-
+      const fn =
+        browserController[stepAction.path] || browserController.defaultHandler
       if (browserController[stepAction.path]) {
-        result = await browserController[stepAction.path](...stepAction.params)
-        if (!result) {
-          console.log('failed: ' + stepAction.path)
+        try {
+          result = await browserController[stepAction.path](
+            ...stepAction.params,
+          )
+          if (!result) {
+            await browserController.error('failed: ' + stepAction.path)
+            stepFileSuccess = false
+          }
+        } catch (e) {
+          await browserController.error(e.message, { stack: e.stack })
+          stepFileSuccess = false
         }
       } else {
         try {
@@ -60,23 +70,19 @@ app.get(
             ...stepAction.params,
           )
           if (!result) {
-            console.log('failed: ' + stepAction.path)
+            await browserController.error('failed: ' + stepAction.path)
+            stepFileSuccess = false
           }
         } catch (e) {
-          invalidActions.push(
-            stepAction.path +
-              (stepAction.params ? '?' : '') +
-              `${stepAction.params}`,
-          )
+          await browserController.error(e.message, { stack: e.stack })
+          stepFileSuccess = false
         }
       }
     }
 
-    if (invalidActions.length > 0) {
+    if (!stepFileSuccess) {
       return res.status(404).send({
-        message:
-          'The following steps could not be executed, did you specify a valid page or keyboard action? Invalid steps: ' +
-          invalidActions.join('/n'),
+        message: 'One or more steps failed, see browser console for details',
       })
     } else {
       if (result) {
@@ -89,8 +95,10 @@ app.get(
     }
   }),
 )
-app.get('/test', function (req, res) {
-  res.send('match test')
+app.get('*', function (req, res) {
+  res.send(
+    'incorrect request format, use either /actionName?value, /actionName?params=JSONParams or /step-file/filename',
+  )
 })
 app.listen(port, () => {
   console.log(`Server running at http://${hostname}:${port}`)
