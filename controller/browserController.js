@@ -1,5 +1,6 @@
 const config = require('../config')
 const pageProvider = require('./pageProvider')
+const loadScript = require('./loadScript')
 
 function _sleep(ms) {
   console.log('sleep: ' + ms)
@@ -9,6 +10,7 @@ function _sleep(ms) {
 const browserController = {
   page: null,
   client: null,
+  context: null,
   logToConsole: false,
   init: async function (force) {
     if (!this.page || force) {
@@ -16,6 +18,7 @@ const browserController = {
     }
     this.client = pageProvider.client
     this.page = pageProvider.page
+    this.context = pageProvider.context
   },
   info: async function (message, obj) {
     this.page.evaluate(
@@ -27,17 +30,22 @@ const browserController = {
     )
     return true
   },
-  error: async function (message, obj) {
+  error: async function (message, err) {
     this.page.evaluate(
-      (message, obj) => {
-        console.error('AppYokeError: ' + message, obj)
+      (message, err) => {
+        console.error('AppYokeError: ' + message, { error: err })
       },
       message,
-      obj,
+      err,
     )
     return true
   },
-
+  inject: async function (scriptName) {
+    const contents = await loadScript(scriptName)
+    if (contents.trim() == '') throw new Error('No contents in script file')
+    await this.page.addScriptTag({ content: contents })
+    return true
+  },
   console: async function (enable) {
     this.logToConsole = enable
     this.info('console logging enabled')
@@ -96,8 +104,7 @@ const browserController = {
     await page.keyboard[action](...args)
     return true
   },
-  press: async function (selector, keys, options) {
-    await this.page.focus(selector)
+  press: async function (keys, options) {
     const modifierKeys = ['Control', 'Shift', 'Alt']
     keys = keys.split(',')
     for (const k of keys) {
@@ -193,7 +200,33 @@ const browserController = {
       t,
     )
   },
+  overridePermissions: async function (permissions) {
+    if (!Array.isArray(permissions)) {
+      permissions = permissions.split(',')
+    }
+    await this.context.clearPermissionOverrides()
+    await this.context.overridePermissions(
+      process.env.DEBUG_ORIGIN,
+      permissions,
+    )
+    //await this.reload()
 
+    return true
+  },
+
+  clearPermissionOverrides: async function () {
+    // const result = await this.client.send('Browser.SetPermission ', {
+    //   origin: process.env.DEBUG_ORIGIN,
+    //   permission: 'notifications',
+    //   setting: 'prompt',
+    // })
+    const result = await this.client.send('Browser.getVersion')
+    const result2 = await this.client.send('Browser.resetPermissions')
+    //    const context = await this.page.browserContext()
+    //  await context.clearPermissionOverrides()
+    //await this.context.clearPermissionOverrides()
+    return true
+  },
   // goto: async function (url, options) {
   //   try {
   //     await this.page.goto(url, options)

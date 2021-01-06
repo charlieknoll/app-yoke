@@ -19,5 +19,13 @@ const stepFileExists = function (fileName) {
   )
   return fileExists(stepFilePath) ? stepFilePath : false
 }
+const injectFileExists = function (fileName) {
+  const injectFilePath = path.join(
+    config.PROJECT_PATH,
+    'app-yoke/inject',
+    fileName,
+  )
+  return fileExists(injectFilePath) ? injectFilePath : false
+}
 
-module.exports = { fileExists, stepFileExists }
+module.exports = { fileExists, stepFileExists, injectFileExists }

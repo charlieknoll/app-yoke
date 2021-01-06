@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer-core')
 const pageProvider = {
   client: null,
   page: null,
+  context: null,
   connect: async function () {
     const cdpUrl = 'http://' + process.env.CDP_HOST + ':' + process.env.CDP_PORT
     let browser
@@ -17,7 +18,7 @@ const pageProvider = {
           `Could not connect to ${cdpUrl}. Make sure all chrome.exe or brave.exe instances are closed so that chrome can start with remote debugging enabled.`,
         )
     }
-
+    this.context = await browser.defaultBrowserContext()
     const origin = process.env.DEBUG_ORIGIN
     const pages = await browser.pages()
 
