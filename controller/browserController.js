@@ -1,6 +1,7 @@
 const config = require('../config')
 const pageProvider = require('./pageProvider')
 const loadScript = require('./loadScript')
+const { spawnSync, execFileSync } = require('child_process')
 
 function _sleep(ms) {
   console.log('sleep: ' + ms)
@@ -78,8 +79,8 @@ const browserController = {
     )
   },
 
-  waitForClick: async function (selector, clickOptions) {
-    const foundEl = await this.waitForSelector(selector)
+  waitForClick: async function (selector, clickOptions, timeout) {
+    const foundEl = await this.waitForSelector(selector, timeout)
     if (foundEl) {
       await this.click(selector, clickOptions)
       return true
@@ -165,6 +166,14 @@ const browserController = {
       origin: process.env.DEBUG_ORIGIN,
       storageTypes: types,
     })
+    return true
+  },
+  exec: async function (command) {
+    this.info('running: ' + command)
+    const result = execFileSync(command, [], {
+      cwd: config.PROJECT_PATH + '/app-yoke/cmd',
+    })
+    this.info('finished: ' + command)
     return true
   },
   reload: async function (clearCache = true) {

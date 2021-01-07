@@ -1,0 +1,5 @@
+network?true
+exec?build-debug.bat
+;Trigger update banner
+reload?false
+waitForClick?params=["div.q-banner[name='update-banner'] button[tabindex='0']", null, "80000"]

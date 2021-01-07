@@ -62,7 +62,7 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```network(enable)```: Enables/disables netork
 
-```bash```: Exec a command in a bash prompt, good for running npm scripts or deployment commands
+```exec```: Exec a command stored in the `app-yoke/cmd` folder, good for running npm scripts or deployment commands
 
 ```clickText(twopartselector)```: Pass a selector in the form selector > innerText. E.g. to click the button including label "Reload" pass "button > Reload". The element.innerText.includes(innerText) is used to match partial strings.
 
