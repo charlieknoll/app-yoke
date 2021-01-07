@@ -66,11 +66,15 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ### Enhanced Actions
 
-```click```: Uses page.evaluate => document.querySelector(selector).click() instead of page.click()
+```click(selector)```: Uses page.evaluate => document.querySelector(selector).click() instead of page.click()
+
+```clickText(twopartselector)```: Pass a selector in the form selector > innerText. E.g. to click the button including label "Reload" pass "button > Reload". The element.innerText.includes(innerText) is used to match partial strings.
 
 ```press(selector,keys,options)```:  Pass a comma delimited list and keyboard.down/up will be sent for the modifier keys and keyboard.press will be used for non modifier keys. Useful for highlighting an existing value before typing text into and input. E.g. "Control,a" would highlight existing text sending keyboard.down("Control"), keyboard.press("a") and keyboard.up("Control"). Subsequent "type" call would overwrite the text in the field. Supported modifier key strings: Control,Shift,Alt.
 
 ```type(selector,text,options)```: Same as page.type except defaults typing speed to 50ms instead of 100ms
+
+```ktype(text,options)```: Same as keyboard.type except defaults typing speed to 50ms instead of 100ms
 
 ### Combination Actions
 
@@ -86,6 +90,13 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 ```info?message```: Logs an info message
 
 ```error?message```: Logs an error message
+
+### Conditional Actions
+
+```clickIf(selector, js,clickOptions)```: Only click if the js evaluates to true
+
+```pressIf(js,keys)```: Only press the comma delimited keys if the js evaluates to true
+
 
 ## AppYoke Project Folder Format
 
@@ -113,7 +124,7 @@ goto?params=["http://localhost:8081?apikey=@@@API_KEY@@@", {"waitUntil": "load"}
 
 Are you tired of clearing site data, reloading page, reloading again to populate data, logging in, disabling/enabling network and repeating over and over again as you test your application?  If so, set up a steps file and hook it up with a hot key to get instant automation of the steps.
 
-```
+```text
 ;This script fully reloads a pwa, auth using api key, 
 ;hydrates cache and resets site settings
 network?true
@@ -128,7 +139,7 @@ press?params=["#albumTitle","Control,a"]
 type?params=["#albumTitle","PhotoAhC"]
 clickText?button > Reload Album
 sleep?2000
-goto?http://localhost:8081
+clickText?a > Home
 sleep?1000
 network?false
 reload
@@ -149,7 +160,7 @@ It can be helpful to create a separate brave/chrome profile for debugging with o
 
 When developing SPA's the document.ready will always evaluate to true because the SPA framework router typically intercepts the navigate event.  To workaround this, use the waitFor... functions and pass in a selector or state variable to be evaluated. For example, in a Vue application you may want pass window._VuePageMounted and set this to false in the beforeDestroy and true in the mounted lifecycle hook of your page components. Then put this in a step file:
 
-```
+```text
 
 ...
 waitForEvaluate?window._VuePageMounted
@@ -163,9 +174,17 @@ Add sleep after navigation clicks to ensure the app has completely loaded.
 
 If you want to block execution of a step file, add an action that show an alert in the browser:
 
-```
+```text
 ...
 ;step file will pause until the alert is clicked in the browser:
 evaluate?alert('test')
 ...
+```
+
+Evaluate some javascript to add a shortcut property to the window global variable. E.g in Quasar apps with a $store on the Vue instance you could run the following code. This would allow youto access window.$store on future ```evaluate```, ```clickIf``` or ```pressIf``` actions:
+
+```text
+evaluate?window.vmEl = document.getElementById('q-app');window.$store = window.vmEl.__vue__.$store;
+;Then later in the script press the space bar if not signed in:
+pressIf?params=["!window.$store.isSignedIn","Space"]
 ```

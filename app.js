@@ -50,33 +50,20 @@ app.get(
       }
       const fn =
         browserController[stepAction.path] || browserController.defaultHandler
-      if (browserController[stepAction.path]) {
-        try {
-          result = await browserController[stepAction.path](
-            ...stepAction.params,
-          )
-          if (!result) {
-            await browserController.error('failed: ' + stepAction.path)
-            stepFileSuccess = false
-          }
-        } catch (e) {
-          await browserController.error(e.message, { stack: e.stack })
+      browserController[stepAction.path]
+        ? stepAction.params
+        : stepAction.params.unshift(stepAction.path)
+      try {
+        result = await fn.bind(browserController)(...stepAction.params)
+        if (!result) {
+          await browserController.error('failed: ' + stepAction.path)
           stepFileSuccess = false
+          if (browserController.breakOnFailedStep) break
         }
-      } else {
-        try {
-          result = await browserController.defaultHandler(
-            stepAction.path,
-            ...stepAction.params,
-          )
-          if (!result) {
-            await browserController.error('failed: ' + stepAction.path)
-            stepFileSuccess = false
-          }
-        } catch (e) {
-          await browserController.error(e.message, { stack: e.stack })
-          stepFileSuccess = false
-        }
+      } catch (e) {
+        await browserController.error(e.message, { stack: e.stack })
+        stepFileSuccess = false
+        if (browserController.breakOnFailedStep) break
       }
     }
 
@@ -85,20 +72,16 @@ app.get(
         message: 'One or more steps failed, see browser console for details',
       })
     } else {
-      if (result) {
-        console.log('finished success')
-        res.send('success')
-      } else {
-        console.log('finished failed')
-        res.send('failed')
-      }
+      res.send('success')
     }
   }),
 )
-app.get('*', function (req, res) {
-  res.send(
-    'incorrect request format, use either /actionName?value, /actionName?params=JSONParams or /step-file/filename',
-  )
+app.get('*', async function (req, res) {
+  await browserController.init()
+  const msg = `Incorrect request format: ${req.url}
+    Use either /actionName?value, /actionName?params=JSONParams or /step-file?filename`
+  await browserController.error(msg)
+  res.send(msg)
 })
 app.listen(port, () => {
   console.log(`Server running at http://${hostname}:${port}`)

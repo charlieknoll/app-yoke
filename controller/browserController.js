@@ -12,6 +12,7 @@ const browserController = {
   client: null,
   context: null,
   logToConsole: false,
+  breakOnFailedStep: true,
   init: async function (force) {
     if (!this.page || force) {
       await pageProvider.init()
@@ -49,6 +50,7 @@ const browserController = {
   console: async function (enable) {
     this.logToConsole = enable
     this.info('console logging enabled')
+    return true
   },
   sleep: async function (ms) {
     await _sleep(ms)
@@ -84,9 +86,28 @@ const browserController = {
     }
     return false
   },
+  clickIf: async function (selector, js, clickOptions) {
+    const result = await this.page.evaluate(js)
+    if (result) {
+      await this.click(selector, clickOptions)
+    }
+    return true
+  },
+  pressIf: async function (js, keys) {
+    const result = await this.page.evaluate(js)
+    if (result) {
+      await this.press(keys)
+    }
+    return true
+  },
   type: async function (selector, text, options) {
     options = options || { delay: 50 }
     await this.page.type(selector, text, options)
+    return true
+  },
+  ktype: async function (text, options) {
+    options = options || { delay: 50 }
+    await this.page.keyboard.type(text, options)
     return true
   },
   defaultHandler: async function () {
@@ -190,7 +211,7 @@ const browserController = {
         const nodes = document.querySelectorAll(s)
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i]
-          if (n.innerText.toLowerCase() == t.toLowerCase()) {
+          if (n.innerText.toLowerCase().includes(t.toLowerCase())) {
             n.click()
             return true
           }
