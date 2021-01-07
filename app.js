@@ -38,7 +38,14 @@ app.get(
   asyncHandler(async function (req, res) {
     await browserController.init()
     const action = parseAction(req.url)
-    const actions = parseStepFile(action.params[0])
+    let actions
+    try {
+      actions = parseStepFile(action.params[0])
+    } catch (e) {
+      await browserController.error(e.message, { stack: e.stack })
+      res.send(e.message)
+      return
+    }
     await browserController.info(action.path, action.params)
     let invalidActions = []
     let result = false

@@ -5,7 +5,9 @@ const fs = require('fs')
 module.exports = function (stepFile) {
   const stepFilePath = stepFileExists(stepFile)
   if (!stepFilePath)
-    throw new Error('Step file does not exist, please check .env settings')
+    throw new Error(
+      'Step file does not exist, check that the file exists in the PROJECT_PATH specified in the .env file.',
+    )
 
   let steps = fs.readFileSync(stepFilePath, 'utf8')
   //   let steps = `
