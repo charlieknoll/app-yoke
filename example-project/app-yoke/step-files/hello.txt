@@ -1,3 +1,15 @@
-;Comment
-reload
-evaluate?alert("Hello")
+;Example Comment
+;Turn on step logging to console
+console?true
+info?test message
+;reload without clearing cache
+reload?false
+;Use waitFor... after a navigation type action (reload temporarily destroys page context)
+waitForEvaluateValue?params=["document.readyState","complete"]
+;this will pause the step file execution
+evaluate?alert('hello')
+network?false
+evaluate?alert('online: ' + navigator.onLine)
+network?true
+evaluate?alert('online: ' + navigator.onLine)
+

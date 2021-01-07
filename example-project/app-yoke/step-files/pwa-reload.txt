@@ -1,8 +1,22 @@
+;This script fully reloads a pwa, auth using api key, hydrates cache, tests in offline mode
+network?true
+console?true
 clearSiteData
 goto?params=["http://localhost:8081?apikey=@@@API_KEY@@@", {"waitUntil": "load"}]
 waitForClick?div.q-banner[name="settings-banner"] button[tabindex="0"]
-reload
+;The app sets the window.__vue_mounted in the mounted action and is also set in the .env file
+waitForFunction
+;waitForSelector?#albumTitle
+;sleep?600
+focus?#albumTitle
+evaluate?window.vmEl = document.getElementById('q-app');window.$store = window.vmEl.__vue__.$store;
+press?Control,a
+ktype?PhotoAhC
+exit
+clickText?button > Reload Album
+sleep?2000
+clickText?a > SLIDESHOW
 sleep?2000
 reload
 network?false
-reload
+reload?false

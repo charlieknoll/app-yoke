@@ -66,7 +66,6 @@ app.get(
         if (browserController.breakOnFailedStep) break
       }
     }
-
     if (!stepFileSuccess) {
       return res.status(404).send({
         message: 'One or more steps failed, see browser console for details',

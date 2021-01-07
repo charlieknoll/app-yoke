@@ -64,17 +64,19 @@ Note: all "waitFor..." actions respect the WAIT_FOR_TIMEOUT value in the .env fi
 
 ```bash```: Exec a command in a bash prompt, good for running npm scripts or deployment commands
 
+```clickText(twopartselector)```: Pass a selector in the form selector > innerText. E.g. to click the button including label "Reload" pass "button > Reload". The element.innerText.includes(innerText) is used to match partial strings.
+
 ### Enhanced Actions
 
 ```click(selector)```: Uses page.evaluate => document.querySelector(selector).click() instead of page.click()
-
-```clickText(twopartselector)```: Pass a selector in the form selector > innerText. E.g. to click the button including label "Reload" pass "button > Reload". The element.innerText.includes(innerText) is used to match partial strings.
 
 ```press(selector,keys,options)```:  Pass a comma delimited list and keyboard.down/up will be sent for the modifier keys and keyboard.press will be used for non modifier keys. Useful for highlighting an existing value before typing text into and input. E.g. "Control,a" would highlight existing text sending keyboard.down("Control"), keyboard.press("a") and keyboard.up("Control"). Subsequent "type" call would overwrite the text in the field. Supported modifier key strings: Control,Shift,Alt.
 
 ```type(selector,text,options)```: Same as page.type except defaults typing speed to 50ms instead of 100ms
 
 ```ktype(text,options)```: Same as keyboard.type except defaults typing speed to 50ms instead of 100ms
+
+```waitForFunction(pageFunction, options, args)```: Uses the WAIT_FOR env variable as the function if no pageFunction is specified
 
 ### Combination Actions
 

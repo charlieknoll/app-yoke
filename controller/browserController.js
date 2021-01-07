@@ -177,6 +177,10 @@ const browserController = {
     await this.init(true)
     return true
   },
+  waitForFunction: async function (pageFunction, options, args) {
+    pageFunction = pageFunction || config.WAIT_FOR
+    return await this.page.waitForFunction(pageFunction, options, args)
+  },
   waitForSelector: async function (selector, timeout) {
     const sleepMs = 250
     let cycles = 0
