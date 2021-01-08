@@ -170,6 +170,7 @@ const browserController = {
   },
   exec: async function (command) {
     this.info('running: ' + command)
+    await this.sleep(100)
     const result = execFileSync(command, [], {
       cwd: config.PROJECT_PATH + '/app-yoke/cmd',
     })
