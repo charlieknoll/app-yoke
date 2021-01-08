@@ -1,10 +1,10 @@
 #SingleInstance, Force
 SendMode Input
 SetWorkingDir, %A_ScriptDir%
-#n::
+#+c::
     name = %A_ScriptName%
 
-    url := "http://localhost:3000/network?true"
+    url := "http://localhost:3000/" . A_ScriptName
     url := StrReplace(url,".ahk","")
     url := StrReplace(url,".exe","")
 
